@@ -17,6 +17,7 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23092b31'/%3E%3Ccircle cx='32' cy='32' r='15' fill='none' stroke='%23edbb74' stroke-width='3'/%3E%3Cpath d='M10 32h44M32 10v44' stroke='%23edbb74'/%3E%3C/svg%3E"
     />
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="menu-ui.css" />
   </head>
   <body>
     <canvas id="game" aria-label="Monde en trois dimensions de Hélio"></canvas>
@@ -46,35 +47,54 @@
     >
       ❚❚
     </button>
-    <main id="menu" class="screen hidden">
-      <div class="menu-copy">
-        <div class="eyebrow"><span></span> UNE ODYSSÉE DE LUMIÈRE</div>
-        <h1>HÉLIO<span>Le jardin des orbites</span></h1>
-        <p class="intro">
-          Le soleil s’endort.<br />À vous de faire fleurir son dernier éclat.
+    <main id="menu" class="screen menu-ui hidden" aria-label="Menu principal">
+      <div class="menu-heading">
+        <div class="eyebrow">LE SANCTUAIRE DES ORBITES</div>
+        <h1 class="sr-only">HÉLIO — Le jardin des orbites</h1>
+        <p class="menu-subtitle">
+          Une dernière graine.<br />Trois mondes à réveiller.
         </p>
-        <button id="start" class="primary">
-          Commencer le voyage <span>→</span></button
-        ><button id="continue" class="text-button hidden">
-          Reprendre le jardin sauvegardé →
+      </div>
+      <nav id="menu-navigation" aria-label="Votre voyage">
+        <button id="continue" class="world-button hidden" data-world="continue">
+          <span class="nav-number">01</span
+          ><span class="nav-label"
+            >Reprendre le voyage<small id="continue-detail"
+              >Votre lumière vous attend</small
+            ></span
+          ><span class="nav-arrow">→</span>
         </button>
-        <div class="menu-guide">
-          <div><kbd>ZQSD</kbd><span>ou WASD · voler</span></div>
-          <div>
-            <kbd>ESPACE</kbd><span>monter</span><kbd>C</kbd
-            ><span>descendre</span>
-          </div>
-          <div><kbd>SOURIS</kbd><span>regarder · clic pour capturer</span></div>
-        </div>
+        <button id="start" class="world-button" data-world="start">
+          <span class="nav-number">01</span
+          ><span class="nav-label"
+            >Commencer l’odyssée<small>Porter la dernière lumière</small></span
+          ><span class="nav-arrow">→</span>
+        </button>
+        <button id="menu-settings" class="world-button" data-world="settings">
+          <span class="nav-number">02</span
+          ><span class="nav-label"
+            >Réglages<small>Accorder votre voyage</small></span
+          ><span class="nav-arrow">→</span>
+        </button>
+        <button id="menu-guide" class="world-button" data-world="guide">
+          <span class="nav-number">03</span
+          ><span class="nav-label"
+            >L’art du vol<small>Commandes et résonances</small></span
+          ><span class="nav-arrow">→</span>
+        </button>
+      </nav>
+      <div class="menu-edition">
+        UNE ODYSSÉE INTERACTIVE <span>ÉDITION SOL ULTRA</span>
+      </div>
+      <div id="relic-caption">
+        <span>LA CHAMBRE DU PREMIER SOUFFLE</span>
+        <p>Tout commence<br />par un éclat.</p>
       </div>
       <div class="menu-footer">
-        <span>EXPLORATION • RÉSONANCE • RENAISSANCE</span
-        ><span>3 JARDINS <i>／</i> 1 DERNIÈRE GRAINE</span>
+        <span>EXPLORER <i>·</i> RELIER <i>·</i> FAIRE RENAÎTRE</span
+        ><span>03 JARDINS <i>／</i> 12 COURONNES</span>
       </div>
-      <div class="scene-caption">
-        <span>01 / LE PREMIER SOUFFLE</span>
-        <p>Les choses fragiles<br />déplacent les mondes.</p>
-      </div>
+      <div id="menu-status" role="status"></div>
     </main>
     <section id="hud" class="hidden" aria-label="Informations de jeu">
       <div id="chapter-info">
@@ -122,91 +142,193 @@
         ><span><kbd>ÉCHAP</kbd> Pause</span>
       </div>
     </section>
-    <section id="pause" class="modal hidden">
-      <div class="modal-card">
-        <div class="eyebrow">LE TEMPS EST SUSPENDU</div>
-        <h2>Reprendre son souffle.</h2>
-        <p>Votre graine vous attend.</p>
-        <button id="resume" class="primary">
-          Reprendre le vol <span>→</span></button
-        ><button id="help-toggle" class="text-button">
-          Les commandes et le voyage
-        </button>
-        <div class="camera-settings">
-          <label for="look-sensitivity"
-            >Sensibilité de la souris
-            <output id="look-sensitivity-value" for="look-sensitivity"
-              >1,0×</output
-            ></label
-          >
-          <input
-            id="look-sensitivity"
-            type="range"
-            min="0.4"
-            max="2"
-            step="0.1"
-            value="1"
-          />
-          <label class="invert-setting"
-            ><input id="look-invert" type="checkbox" /> Inverser la vue
-            verticale</label
-          >
+    <section id="pause" class="modal menu-ui-modal hidden" aria-label="Pause">
+      <div class="pause-layout">
+        <div class="pause-copy">
+          <div class="eyebrow">LE TEMPS EST SUSPENDU</div>
+          <h2>Le souffle<br />vous appartient.</h2>
+          <p id="pause-chapter">Votre graine vous attend.</p>
+          <button id="resume" class="primary world-action">
+            Reprendre le vol <span>→</span>
+          </button>
+          <div class="pause-actions">
+            <button id="pause-settings" class="text-button">
+              Réglages <span>→</span></button
+            ><button id="help-toggle" class="text-button">
+              L’art du vol <span>→</span>
+            </button>
+          </div>
+          <div id="pause-quick-settings">
+            <div id="camera-settings" class="camera-settings settings-group">
+              <label for="look-sensitivity"
+                >Sensibilité de la souris
+                <output id="look-sensitivity-value" for="look-sensitivity"
+                  >1,0×</output
+                ></label
+              >
+              <input
+                id="look-sensitivity"
+                type="range"
+                min="0.4"
+                max="2"
+                step="0.1"
+                value="1"
+              />
+              <label class="invert-setting"
+                ><input id="look-invert" type="checkbox" /> Inverser la vue
+                verticale</label
+              >
+            </div>
+          </div>
+          <div class="pause-actions pause-secondary">
+            <button id="return-title" class="text-button">
+              Retour au sanctuaire</button
+            ><button id="restart" class="text-button muted">Recommencer</button>
+          </div>
         </div>
-        <div id="help" class="hidden help">
-          <p>
-            Un clic dans le jeu capture la souris : regardez sans maintenir de
-            bouton. Échap libère le curseur et met en pause. Si la capture est
-            indisponible, maintenez un clic et glissez.
-          </p>
-          <p>
-            <b>ZQSD / WASD</b> : avancer, reculer et glisser latéralement.<br /><b
-              >Espace / C</b
+      </div>
+    </section>
+    <section
+      id="menu-panel"
+      class="modal menu-panel hidden"
+      aria-label="Réglages et guide"
+    >
+      <div class="menu-panel-card">
+        <button id="panel-back" class="panel-back">
+          ← Retour au sanctuaire
+        </button>
+        <div class="panel-overline eyebrow">PRÉPARER LE VOYAGE</div>
+        <h2 id="panel-title">Réglages</h2>
+        <p id="panel-description">Accordez le monde à votre rythme.</p>
+        <div id="settings-content">
+          <div id="settings-camera-slot"></div>
+          <div class="settings-group">
+            <div class="setting-row">
+              <div>
+                <strong>Paysage sonore</strong
+                ><small>Musique et sons du jardin</small>
+              </div>
+              <button
+                id="menu-audio-toggle"
+                class="setting-toggle"
+                aria-pressed="true"
+              >
+                Activé
+              </button>
+            </div>
+            <div class="setting-row">
+              <div>
+                <strong>Immersion</strong
+                ><small>Étendre le jardin à tout l’écran</small>
+              </div>
+              <button id="menu-fullscreen" class="setting-toggle">
+                Plein écran →
+              </button>
+            </div>
+            <label class="invert-setting motion-setting"
+              ><input id="menu-reduced-motion" type="checkbox" /> Réduire les
+              animations des menus</label
             >
-            : monter / descendre.<br /><b>Souris / ← →</b> : tourner la
-            caméra.<br /><b>Maj</b> : accélérer. <b>F</b> : rapprocher la
-            graine.<br /><b>X</b> : alterner les résonances solaire et
-            lunaire.<br /><b>E</b> : recueillir la graine ou réveiller un
-            jardin.<br /><b>R</b> : revenir au dernier anneau franchi.
-          </p>
-          <p>
-            Guidez la graine à travers les anneaux dans l’ordre. Leur couleur
-            indique la résonance nécessaire. Les épines repoussent ; elles ne
-            détruisent jamais votre progression.
+          </div>
+          <button id="reset-look" class="text-button muted">
+            Rétablir les réglages de vue
+          </button>
+        </div>
+        <div id="guide-content" class="hidden">
+          <div class="guide-steps">
+            <div>
+              <span>01</span>
+              <p>
+                <strong>Accueillir.</strong>Approchez la graine lumineuse, puis
+                appuyez sur <kbd>E</kbd>.
+              </p>
+            </div>
+            <div>
+              <span>02</span>
+              <p>
+                <strong>Relier.</strong>Guidez la graine dans les couronnes.
+                <kbd>X</kbd> alterne ambre et azur ; <kbd>F</kbd> resserre le
+                lien.
+              </p>
+            </div>
+            <div>
+              <span>03</span>
+              <p>
+                <strong>Faire renaître.</strong>Rejoignez le cœur du jardin et
+                offrez la graine avec <kbd>E</kbd>.
+              </p>
+            </div>
+          </div>
+          <div id="help" class="guide-controls">
+            <div><kbd>ZQSD</kbd><span>ou WASD · voler</span></div>
+            <div>
+              <kbd>ESPACE</kbd><kbd>C</kbd><span>monter / descendre</span>
+            </div>
+            <div>
+              <kbd>SOURIS</kbd><span>regarder · clic pour capturer</span>
+            </div>
+            <div><kbd>MAJ</kbd><span>prendre de l’élan</span></div>
+            <div><kbd>R</kbd><span>dernier point de reprise</span></div>
+            <div>
+              <kbd>ÉCHAP</kbd><span>libérer la souris et mettre en pause</span>
+            </div>
+          </div>
+          <p class="guide-note">
+            C’est la graine qui franchit la couronne. Avancez encore un peu
+            après votre passage.
           </p>
         </div>
-        <button id="restart" class="text-button muted">
-          Recommencer le voyage
-        </button>
       </div>
     </section>
-    <section id="chapter-screen" class="modal hidden">
-      <div class="modal-card">
-        <div class="eyebrow" id="chapter-overline">JARDIN ÉVEILLÉ</div>
-        <div class="bloom-icon">✳</div>
-        <h2 id="chapter-title">La lumière prend racine.</h2>
-        <p id="chapter-story"></p>
-        <button id="next" class="primary">
-          Vers le jardin suivant <span>→</span>
-        </button>
+    <section
+      id="chapter-screen"
+      class="modal menu-ui-modal hidden"
+      aria-label="Jardin éveillé"
+    >
+      <div class="chapter-layout">
+        <div class="chapter-copy">
+          <div class="eyebrow" id="chapter-overline">JARDIN ÉVEILLÉ</div>
+          <div class="bloom-icon">✳</div>
+          <h2 id="chapter-title">La lumière<br />prend racine.</h2>
+          <p id="chapter-story"></p>
+          <div
+            id="chapter-map"
+            class="journey-map"
+            aria-label="Les trois jardins"
+          ></div>
+          <button id="next" class="primary world-action">
+            Poursuivre l’odyssée <span>→</span>
+          </button>
+        </div>
       </div>
     </section>
-    <section id="victory" class="modal hidden">
-      <div class="modal-card victory-card">
-        <div class="eyebrow">LES TROIS JARDINS RESPIRENT</div>
-        <div class="bloom-icon">✳</div>
-        <h2>Tout recommence<br />par une graine.</h2>
-        <p>
-          Vous avez rendu au ciel sa lumière.<br />Et aux choses fragiles, un
-          avenir.
-        </p>
-        <div id="stats"></div>
-        <button id="replay" class="primary">
-          Faire renaître le voyage <span>→</span></button
-        ><button id="explore" class="text-button">
-          Rester encore un peu dans le jardin →
-        </button>
+    <section
+      id="victory"
+      class="modal menu-ui-modal hidden"
+      aria-label="Voyage accompli"
+    >
+      <div class="chapter-layout">
+        <div class="chapter-copy victory-copy">
+          <div class="eyebrow">LES TROIS JARDINS RESPIRENT</div>
+          <div class="bloom-icon">✳</div>
+          <h2>Tout recommence<br />par une graine.</h2>
+          <p>
+            Vous avez rendu au ciel sa lumière.<br />Et aux choses fragiles, un
+            avenir.
+          </p>
+          <div id="stats"></div>
+          <button id="replay" class="primary world-action">
+            Faire renaître le voyage <span>→</span>
+          </button>
+          <button id="explore" class="text-button">
+            Rester encore dans le jardin →</button
+          ><button id="victory-title" class="text-button muted">
+            Retour au sanctuaire
+          </button>
+        </div>
       </div>
     </section>
+    <div id="transition-veil" aria-hidden="true"></div>
     <div id="fatal" class="modal hidden">
       <div class="modal-card">
         <h2>Le ciel n’a pas pu s’ouvrir.</h2>

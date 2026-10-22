@@ -18,11 +18,11 @@ La suite `browser.py` utilise de vrais événements clavier et souris. Le mode Q
 
 ## Parcours continu supplémentaire
 
-`python tests/journey.py` a également atteint la victoire depuis le début sans aucun placement artificiel : **21 contrôles**, trois graines, douze anneaux, trois livraisons et rejeu. Seule la fonction QA `step` accélère la physique ; toutes les commandes passent par les événements de touches et les boutons. Le trajet mesuré couvre **227.313 mètres**, avec une collision naturelle récupérée sans blocage et un lien de longueur maximale 2,724 mètres. Il s’agit d’un pilotage automatique de la simulation, pas d’une partie manuelle en temps réel.
+`python tests/journey.py` a également atteint la victoire depuis le début sans aucun placement artificiel : **21 contrôles**, trois graines, douze anneaux, trois livraisons et rejeu. Seule la fonction QA `step` accélère la physique ; toutes les commandes passent par les événements de touches et les boutons. Le trajet mesuré couvre **227.588 mètres**, avec une collision naturelle récupérée sans blocage et un lien de longueur maximale 2,724 mètres. Il s’agit d’un pilotage automatique de la simulation, pas d’une partie manuelle en temps réel.
 
 ## Performance : mesure et limites
 
-Après quatre secondes de chauffe : **20 images en 5.207 secondes, soit 3.84 images/s**, avec **SwiftShader Vulkan sur CPU**, fenêtre 1440×900, rendu interne 936×585, environ 200 appels de rendu et 87 424 triangles. Le rendu logiciel reste lent. Aucun résultat de performance sur GPU matériel n’a été mesuré, et aucune promesse de 60 FPS n’est faite.
+Après quatre secondes de chauffe : **19 images en 5.017 secondes, soit 3.79 images/s**, avec **SwiftShader Vulkan sur CPU**, fenêtre 1440×900, rendu interne 936×585, environ 200 appels de rendu et 87 424 triangles. Le rendu logiciel reste lent. Aucun résultat de performance sur GPU matériel n’a été mesuré, et aucune promesse de 60 FPS n’est faite.
 
 Le post-traitement coûteux a été retiré ; les matériaux lumineux et sprites conservent l’atmosphère. Les décors sont instanciés, les éléments de jeu futurs sont masqués et la résolution s’adapte automatiquement. Il faut néanmoins tester sur le navigateur et le matériel de destination pour évaluer leur fluidité réelle.
 
@@ -33,3 +33,13 @@ Le rapport machine et les captures sont produits dans `test-output/` lors de l�
 La vue utilise désormais une vraie orbite horizontale et verticale, avec un sens horizontal conventionnel. La rotation répond directement à l’entrée ; seul le suivi de la position du vaisseau est amorti. Un clic capture le pointeur ; Échap le libère et met en pause. La pause propose une sensibilité de 0,4× à 2× et une inversion verticale, sauvegardées dans le navigateur. Le glisser reste disponible quand une iframe ou le navigateur refuse la capture.
 
 **17 vérifications supplémentaires réussies** avec `python tests/camera.py`, en utilisant une capture native réelle dans Chromium : droite/haut, cohérence entre vol et vue, orbite de 11,6 unités, absence de retard angulaire, limites verticales, Échap, reprises répétées, réglages, persistance, refus de capture dans une iframe et nettoyage du glisser après relâchement ou annulation. Aucune erreur JavaScript non interceptée ; les refus de capture provoqués volontairement dans l’iframe sont consignés séparément dans `test-output/camera-report.json`.
+
+## Refonte du sanctuaire — version 1.1.0
+
+Les menus possèdent une scène WebGL indépendante : titre réellement extrudé, astrolabe articulé, graine lumineuse, socle et plaques de navigation en volume. Les boutons HTML accessibles sont projetés sur les quatre coins des plaques avec une transformation projective, et réagissent aussi au clavier. L’accueil, la pause, le guide, les réglages, les transitions de jardins et la victoire conservent cette direction visuelle.
+
+**22 tests de menus réussis** (`python tests/menus.py`) : titre 3D chargé, zones projetées à 800×600 et 1440×900 avec trois ou quatre boutons sans chevauchement, navigation clavier, guide, réglages de vue et de son, réduction des animations et persistance, plein écran réel, lancement animé avec capture native de la souris, retour au sanctuaire et reprise exacte de la partie, redémarrage et reprise d’une sauvegarde. Aucune erreur JavaScript, console ou requête HTTP en échec.
+
+Les 34 vérifications de jeu, le parcours continu de 21 contrôles et les 17 tests de caméra ont été relancés avec ces menus et passent. Les tests contrôlent également que les menus de pause, de progression et de victoire ne modifient pas l’état de la partie. Captures de l’accueil, des réglages et de la pause inspectées à 1200×750 ; premier contrôle visuel à 800×600 et 1440×900.
+
+La scène de menu représente environ 80 appels de rendu et 33 142 triangles. Il s’agit de comptes de géométrie, pas d’une mesure de fluidité sur GPU matériel.

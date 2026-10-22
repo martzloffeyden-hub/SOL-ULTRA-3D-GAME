@@ -98,6 +98,12 @@ def main():
         def state():
             return page.evaluate("window.__HELIO__.getState()")
 
+        def wait_play():
+            page.wait_for_function("()=>{const state=window.__HELIO__?.getState();return state?.mode==='play'&&!state.menu.transitioning;}")
+
+        def progress(snapshot):
+            return {key: snapshot[key] for key in ["chapter", "gateIndex", "totalGates", "carrying", "phase", "elapsed", "player", "checkpoint"]}
+
         def check(name, detail=None):
             report["checks"].append({"name": name, "detail": detail})
             print("PASS " + name + (": " + str(detail) if detail is not None else ""), flush=True)
@@ -117,6 +123,7 @@ def main():
             assert response.status == 200
             page.wait_for_function("window.__HELIO__?.qa && !document.getElementById('menu').classList.contains('hidden')")
             page.locator("#start").click()
+            wait_play()
             assert state()["mode"] == "play"
             page.evaluate(DRIVER)
             levels = page.evaluate("window.__HELIO__.levels")
@@ -150,17 +157,27 @@ def main():
                 page.keyboard.press("e")
                 if ci < len(levels)-1:
                     assert state()["mode"] == "chapter"
+                    completed_chapter = progress(state())
+                    page.wait_for_timeout(150)
+                    assert state()["mode"] == "chapter"
+                    assert progress(state()) == completed_chapter, "The 3D chapter menu changed journey progression"
                     page.locator("#next").click()
+                    wait_play()
                     assert state()["mode"] == "play" and state()["chapter"] == ci+1
                     check(f"chapter {ci+1}: deliver and transition using real UI")
                 else:
                     final = state()
                     assert final["mode"] == "won" and final["totalGates"] == 12
+                    completed_journey = progress(final)
+                    page.wait_for_timeout(150)
+                    assert state()["mode"] == "won"
+                    assert progress(state()) == completed_journey, "The 3D victory menu changed journey progression"
                     report["victory"] = final
                     page.screenshot(path=str(OUTPUT / "journey-victory.png"))
                     check("continuous 12-ring, 3-garden journey reaches victory", {
                         "game_seconds": round(final["elapsed"],2), "impacts": final["impacts"]})
             page.locator("#replay").click()
+            wait_play()
             replay = state()
             assert replay["mode"] == "play" and replay["chapter"] == 0
             assert replay["gateIndex"] == replay["totalGates"] == replay["impacts"] == 0

@@ -16,6 +16,12 @@ Ouvrir **http://localhost:4173**. Aucune installation npm ni compilation nécess
 
 Le jeu cible un ordinateur avec clavier, souris et navigateur récent compatible WebGL 2. Tous les graphismes, sons et dépendances sont inclus ou produits localement ; aucune connexion n’est nécessaire une fois le projet servi.
 
+## Le sanctuaire en trois dimensions
+
+L’accueil, la pause, les réglages, le guide et les écrans de progression partagent un observatoire en 3D : titre extrudé, astrolabe animé et plaques de navigation physiques. Les libellés accessibles suivent exactement leur projection dans la scène. Les boutons fonctionnent aussi au clavier.
+
+La pause permet de retourner au sanctuaire sans perdre le vol en cours, puis de le reprendre. Les réglages regroupent vue, son, plein écran et réduction des animations des menus.
+
 ## Commandes
 
 | Commande | Action |
@@ -48,6 +54,8 @@ La progression est sauvegardée **au début de chaque jardin** dans le stockage 
 ## Architecture
 
 - `dist/game.js` : simulation, commandes, caméra, graine, collisions, interface et progression.
+- `dist/menu-scene.js` : observatoire, titre et plaques de navigation en 3D.
+- `dist/menu-ui.css` : interfaces du sanctuaire, de la pause et des écrans de progression.
 - `dist/world.js` : archipel, architecture, végétation, ciel et lever du soleil final.
 - `dist/mouse-look.js` : capture de la souris, regard libre et glisser de repli.
 - `dist/audio.js` : musique et effets synthétisés avec Web Audio, démarrés après une interaction.
@@ -70,6 +78,7 @@ Tests de géométrie avec le lanceur intégré de Node.js. Pour les tests naviga
 ```sh
 python tests/browser.py
 python tests/camera.py
+python tests/menus.py
 python tests/journey.py
 ```
 
@@ -80,3 +89,5 @@ Les rapports réels et limites de mesure figurent dans `VALIDATION.md` et `test-
 ## Crédits
 
 Conception, programmation, graphismes et musique procédurale créés pour le défi SOL ULTRA. Moteur : Three.js, © 2010–2024 Three.js authors, licence MIT dans `dist/vendor/THREE-LICENSE.txt`. Aucun asset distant, police web ou compte tiers requis pour jouer localement.
+
+Titre 3D : police Optimer, © MAGENTA Ltd., 2004, distribuée avec sa licence dans `dist/vendor/OPTIMER-LICENSE.txt` et dans le fichier de police JSON.

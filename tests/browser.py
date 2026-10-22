@@ -46,6 +46,12 @@ def main():
         def state():
             return page.evaluate("window.__HELIO__.getState()")
 
+        def wait_play():
+            page.wait_for_function("()=>{const state=window.__HELIO__?.getState();return state?.mode==='play'&&!state.menu.transitioning;}")
+
+        def progress(snapshot):
+            return {key: snapshot[key] for key in ["chapter", "gateIndex", "totalGates", "carrying", "phase", "elapsed", "player", "checkpoint"]}
+
         def qa(method, value=None):
             return page.evaluate("([method,value])=>window.__HELIO__.qa[method](value)", [method, value])
 
@@ -71,6 +77,7 @@ def main():
             check("load, WebGL initialization and menu")
 
             page.locator("#start").click()
+            wait_play()
             assert state()["mode"] == "play"
             before = state()["player"]
             page.keyboard.down("w")
@@ -171,13 +178,16 @@ def main():
             page.keyboard.up("w")
             assert state()["player"] == paused["player"]
             assert state()["elapsed"] == paused["elapsed"]
+            assert progress(state()) == progress(paused), "The 3D pause menu changed journey progression"
             page.locator("#resume").click()
+            wait_play()
             assert state()["mode"] == "play"
             check("Escape releases mouse and freezes simulation; Resume returns to flight")
 
             # Restart resets the counter potentially advanced during movement checks.
             page.keyboard.press("Escape")
             page.locator("#restart").click()
+            wait_play()
             assert state()["chapter"] == state()["gateIndex"] == state()["totalGates"] == 0
             assert state()["carrying"] is False
             levels = page.evaluate("window.__HELIO__.levels")
@@ -267,12 +277,15 @@ def main():
                 assert state()["carrying"] is False
                 if ci < 2:
                     assert state()["mode"] == "chapter"
+                    completed_chapter = progress(state())
                     page.wait_for_function("document.pointerLockElement === null")
                     assert state()["view"]["locked"] is False
                     page.wait_for_timeout(150)
                     assert state()["mode"] == "chapter", "Asynchronous mouse unlock replaced the chapter screen"
+                    assert progress(state()) == completed_chapter, "The 3D chapter menu changed journey progression"
                     page.screenshot(path=str(OUTPUT / f"03-chapter-{ci + 1}.png"))
                     page.locator("#next").click()
+                    wait_play()
                     assert state()["mode"] == "play"
                     assert state()["chapter"] == ci + 1
                     assert state()["gateIndex"] == 0
@@ -285,6 +298,7 @@ def main():
                     assert page.evaluate("localStorage.getItem('helio-chapter')") == str(ci + 1)
                     assert page.locator("#continue").is_visible()
                     page.locator("#continue").click()
+                    wait_play()
                     resumed = state()
                     assert resumed["mode"] == "play" and resumed["chapter"] == ci + 1
                     assert resumed["gateIndex"] == 0 and resumed["carrying"] is False
@@ -292,16 +306,19 @@ def main():
                     check(f"saved chapter {ci + 2} survives reload and Continue resumes it")
                 else:
                     assert state()["mode"] == "won"
+                    completed_journey = progress(state())
                     page.wait_for_function("document.pointerLockElement === null")
                     assert state()["view"]["locked"] is False
                     page.wait_for_timeout(150)
                     assert state()["mode"] == "won", "Asynchronous mouse unlock replaced the victory screen"
+                    assert progress(state()) == completed_journey, "The 3D victory menu changed journey progression"
                     assert state()["totalGates"] == 12
                     assert "12" in page.locator("#stats").inner_text()
                     page.screenshot(path=str(OUTPUT / "04-victory.png"))
                     check("final delivery, victory screen and 12-gate score")
 
             page.locator("#replay").click()
+            wait_play()
             replay = state()
             assert replay["mode"] == "play" and replay["chapter"] == 0
             assert replay["gateIndex"] == replay["totalGates"] == replay["impacts"] == 0

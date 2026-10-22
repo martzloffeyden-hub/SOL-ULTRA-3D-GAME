@@ -4,6 +4,7 @@ import { AudioGarden } from "./audio.js";
 import { LEVELS } from "./levels.js";
 import { crossing, sphereContact } from "./physics.js";
 import { createMouseLook } from "./mouse-look.js";
+import { createMenuScene } from "./menu-scene.js";
 
 const $ = (id) => document.getElementById(id),
   V = (a) => new THREE.Vector3(...a);
@@ -12,7 +13,18 @@ const canvas = $("game"),
   keys = new Set();
 const GOLD = new THREE.Color("#ffc879"),
   BLUE = new THREE.Color("#8be4eb");
-let renderer, scene, camera, world;
+let renderer, scene, camera, world, menuScene;
+let panelReturnFocus = null;
+let menuSection = null,
+  hasSuspendedRun = false,
+  transitioning = false,
+  transitionStarted = 0;
+const menuPointer = { x: 0, y: 0 };
+let reducedMenuMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+try {
+  const saved = localStorage.getItem("helio-menu-motion");
+  if (saved !== null) reducedMenuMotion = saved === "1";
+} catch {}
 let mode = "menu",
   chapter = 0,
   gateIndex = 0,
@@ -126,7 +138,7 @@ function glow(parent, color, size) {
   return s;
 }
 
-function init() {
+async function init() {
   renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -163,14 +175,13 @@ function init() {
   createCourse();
   createParticles();
   loadChapter(0, false);
-  camera.position.set(23, 14, 32);
-  camera.lookAt(0, 7, -5);
+  menuScene = await createMenuScene();
+  menuScene.setReducedMotion?.(reducedMenuMotion);
+  $("menu-reduced-motion").checked = reducedMenuMotion;
+  if (!menuScene.titleReady)
+    $("menu").querySelector("h1").classList.remove("sr-only");
   $("loading").classList.add("hidden");
-  $("menu").classList.remove("hidden");
-  try {
-    if (Number(localStorage.getItem("helio-chapter")) > 0)
-      $("continue").classList.remove("hidden");
-  } catch {}
+  setMode("menu");
   requestAnimationFrame(loop);
 }
 function createDrone() {
@@ -614,6 +625,7 @@ function startGame(resume = false) {
   impacts = 0;
   totalGates = 0;
   exploring = false;
+  hasSuspendedRun = false;
   world.resetAwakening?.();
   let idx = 0;
   if (resume) {
@@ -635,6 +647,10 @@ function startGame(resume = false) {
 }
 function setMode(next) {
   mode = next;
+  menuSection = null;
+  $("menu-panel").classList.add("hidden");
+  $("pause-quick-settings").append($("camera-settings"));
+  document.body.dataset.view = next;
   keys.clear();
   mouseLook.release();
   $("look-hint").textContent = "CLIC DANS LE JEU · VUE À LA SOURIS";
@@ -647,6 +663,16 @@ function setMode(next) {
   if (next === "chapter") $("chapter-screen").classList.remove("hidden");
   if (next === "won") $("victory").classList.remove("hidden");
   sound.pause(next === "pause");
+  if (next === "menu") refreshTitleMenu();
+  else menuScene?.setMode(next, chapter, false);
+  if (next === "pause")
+    $("pause-chapter").textContent =
+      `${LEVELS[chapter].subtitle} · ${gateIndex} / ${LEVELS[chapter].gates.length} couronnes reliées`;
+  if (next === "chapter")
+    $("chapter-map").innerHTML = LEVELS.map(
+      (level, i) =>
+        `<div class="journey-stop ${i <= chapter ? "done" : i === chapter + 1 ? "current" : ""}"><span>${i <= chapter ? "✓" : String(i + 1).padStart(2, "0")}</span><strong>${level.name}</strong><small>${i <= chapter ? "ÉVEILLÉ" : i === chapter + 1 ? "PROCHAIN JARDIN" : "À VENIR"}</small></div>`,
+    ).join("");
 }
 function updateUI() {
   const l = LEVELS[chapter];
@@ -1108,19 +1134,23 @@ function loop(now) {
     const steps = Math.max(1, Math.ceil(dt / 0.016));
     for (let i = 0; i < steps; i++) step(dt / steps);
     updateCamera(dt);
-  } else if (mode === "menu") {
-    player.set(3.5, 7.5 + Math.sin(time * 0.6) * 0.4, 7);
-    seedPos.set(2, 8 + Math.sin(time) * 0.2, 10);
-    const t = time * 0.045;
-    camera.position.set(22 + Math.sin(t) * 4, 14 + Math.sin(t * 0.7), 32);
-    camera.lookAt(0, 7, -5);
   }
   camera.updateMatrixWorld();
   if (mode === "play") updateMarker();
   updateDrone(dt);
   visuals(dt);
   renderer.info.reset();
-  renderer.render(scene, camera);
+  if (mode !== "play" && menuScene) {
+    if (transitioning)
+      menuScene.setDeparture?.(Math.min(1, (now - transitionStarted) / 220));
+    menuScene.update(
+      time,
+      dt,
+      reducedMenuMotion ? { x: 0, y: 0 } : menuPointer,
+    );
+    syncMenuAnchors();
+    renderer.render(menuScene.scene, menuScene.camera);
+  } else renderer.render(scene, camera);
   perfFrames++;
   perfTime += realDT;
   if (perfTime > 2) {
@@ -1148,24 +1178,155 @@ function updateSoundButton() {
     "aria-label",
     muted ? "Activer le son" : "Couper le son",
   );
+  $("menu-audio-toggle").textContent = muted ? "Désactivé" : "Activé";
+  $("menu-audio-toggle").setAttribute("aria-pressed", String(!muted));
 }
-$("start").onclick = () => startGame();
-$("continue").onclick = () => startGame(true);
-$("resume").onclick = () => {
+function savedChapter() {
+  try {
+    const value = localStorage.getItem("helio-chapter");
+    return value === null ? -1 : Math.max(0, Math.min(2, Number(value) || 0));
+  } catch {
+    return -1;
+  }
+}
+function refreshTitleMenu() {
+  const saved = savedChapter();
+  const hasSave = hasSuspendedRun || saved >= 0;
+  $("continue").classList.toggle("hidden", !hasSave);
+  $("continue-detail").textContent = hasSuspendedRun
+    ? `Vol en cours · ${LEVELS[chapter].name}`
+    : saved >= 0
+      ? `Jardin ${["I", "II", "III"][saved]} · ${LEVELS[saved].name}`
+      : "Votre lumière vous attend";
+  [...$("menu-navigation").querySelectorAll("button:not(.hidden)")].forEach(
+    (button, i) =>
+      (button.querySelector(".nav-number").textContent = String(i + 1).padStart(
+        2,
+        "0",
+      )),
+  );
+  menuScene?.setMode(
+    "menu",
+    hasSuspendedRun ? chapter : Math.max(0, saved),
+    hasSave,
+  );
+  menuScene?.setHovered(hasSave ? "continue" : "start");
+  syncMenuAnchors();
+}
+function projectControl(element, bounds) {
+  if (!bounds?.visible) return;
+  const p = bounds.corners,
+    width = bounds.width,
+    height = bounds.height;
+  const dx1 = p[1].x - p[2].x,
+    dx2 = p[3].x - p[2].x,
+    dx3 = p[0].x - p[1].x + p[2].x - p[3].x;
+  const dy1 = p[1].y - p[2].y,
+    dy2 = p[3].y - p[2].y,
+    dy3 = p[0].y - p[1].y + p[2].y - p[3].y;
+  const determinant = dx1 * dy2 - dx2 * dy1;
+  const g =
+    Math.abs(determinant) > 1e-8 ? (dx3 * dy2 - dx2 * dy3) / determinant : 0;
+  const h =
+    Math.abs(determinant) > 1e-8 ? (dx1 * dy3 - dx3 * dy1) / determinant : 0;
+  const a = p[1].x - p[0].x + g * p[1].x,
+    b = p[3].x - p[0].x + h * p[3].x;
+  const d = p[1].y - p[0].y + g * p[1].y,
+    e = p[3].y - p[0].y + h * p[3].y;
+  Object.assign(element.style, {
+    left: "0px",
+    top: "0px",
+    width: width + "px",
+    height: height + "px",
+    minHeight: "0px",
+    transformOrigin: "0 0",
+    transform: `matrix3d(${a / width},${d / width},0,${g / width},${b / height},${e / height},0,${h / height},0,0,1,0,${p[0].x},${p[0].y},0,1)`,
+  });
+}
+function syncMenuAnchors() {
+  if (mode !== "menu" || menuSection || !menuScene) return;
+  const anchors = menuScene.getScreenAnchors(innerWidth, innerHeight);
+  for (const element of $("menu-navigation").querySelectorAll("[data-world]"))
+    projectControl(element, anchors[element.dataset.world]);
+  const heading = $("menu").querySelector(".menu-heading");
+  if (anchors.title) {
+    heading.style.left = anchors.title.left + "px";
+    heading.style.top = Math.max(63, anchors.title.top - 20) + "px";
+  }
+  const subtitle = $("menu").querySelector(".menu-subtitle");
+  if (anchors.subtitle) {
+    subtitle.style.position = "fixed";
+    subtitle.style.left = (anchors.title?.left || innerWidth * 0.065) + "px";
+    subtitle.style.top = anchors.subtitle.y + "px";
+    subtitle.style.margin = "0";
+  }
+}
+function launch(action) {
+  if (transitioning) return;
+  transitioning = true;
+  transitionStarted = performance.now();
+  sound.start();
+  sound.play("menu");
+  $("transition-veil").classList.add("departing");
+  setTimeout(
+    () => {
+      action();
+      menuScene?.setDeparture?.(0);
+      setTimeout(
+        () => {
+          $("transition-veil").classList.remove("departing");
+          transitioning = false;
+        },
+        reducedMenuMotion ? 0 : 60,
+      );
+    },
+    reducedMenuMotion ? 0 : 220,
+  );
+}
+function resumeFlight() {
   setMode("play");
+  updateCamera(0, true);
   mouseLook.capture();
-};
-$("restart").onclick = () => startGame();
-$("replay").onclick = () => startGame();
-$("next").onclick = () => {
-  loadChapter(chapter + 1);
-  setMode("play");
-  showMessage(LEVELS[chapter].hint, 8);
-  mouseLook.capture();
-};
-$("pause-button").onclick = () => setMode("pause");
-$("help-toggle").onclick = () => $("help").classList.toggle("hidden");
-$("sound").onclick = () => {
+}
+function openMenuPanel(section) {
+  if (transitioning) return;
+  panelReturnFocus = document.activeElement;
+  menuSection = section;
+  $("menu").classList.add("hidden");
+  $("pause").classList.add("hidden");
+  $("menu-panel").classList.remove("hidden");
+  const settings = section === "settings";
+  $("settings-content").classList.toggle("hidden", !settings);
+  $("guide-content").classList.toggle("hidden", settings);
+  $("panel-title").textContent = settings
+    ? "Accorder le voyage."
+    : "L’art du vol.";
+  $("panel-description").textContent = settings
+    ? "Chaque souffle a son rythme. Trouvez le vôtre."
+    : "Les choses fragiles déplacent les mondes.";
+  $("panel-back").textContent =
+    mode === "pause" ? "← Retour à la pause" : "← Retour au sanctuaire";
+  if (settings) $("settings-camera-slot").append($("camera-settings"));
+  menuScene?.setHovered(null);
+  menuScene?.setMode(section, chapter, false);
+  updateSoundButton();
+  $("panel-back").focus({ preventScroll: true });
+}
+function closeMenuPanel() {
+  menuSection = null;
+  $("menu-panel").classList.add("hidden");
+  $("pause-quick-settings").append($("camera-settings"));
+  if (mode === "menu") {
+    $("menu").classList.remove("hidden");
+    refreshTitleMenu();
+  } else {
+    $("pause").classList.remove("hidden");
+    menuScene?.setMode("pause", chapter, false);
+  }
+  if (panelReturnFocus?.isConnected)
+    panelReturnFocus.focus({ preventScroll: true });
+}
+function toggleSound() {
   muted = !muted;
   sound.setMuted(muted);
   if (!muted) sound.start();
@@ -1173,19 +1334,112 @@ $("sound").onclick = () => {
   try {
     localStorage.setItem("helio-muted", muted ? "1" : "0");
   } catch {}
+}
+$("start").onclick = () => launch(() => startGame());
+$("continue").onclick = () =>
+  launch(() => {
+    if (hasSuspendedRun) {
+      hasSuspendedRun = false;
+      resumeFlight();
+    } else startGame(true);
+  });
+$("resume").onclick = () => launch(resumeFlight);
+$("restart").onclick = () => launch(() => startGame());
+$("replay").onclick = () => launch(() => startGame());
+$("next").onclick = () =>
+  launch(() => {
+    loadChapter(chapter + 1);
+    setMode("play");
+    showMessage(LEVELS[chapter].hint, 8);
+    mouseLook.capture();
+  });
+$("pause-button").onclick = () => setMode("pause");
+$("menu-settings").onclick = () => openMenuPanel("settings");
+$("pause-settings").onclick = () => openMenuPanel("settings");
+$("menu-guide").onclick = () => openMenuPanel("guide");
+$("help-toggle").onclick = () => openMenuPanel("guide");
+$("panel-back").onclick = closeMenuPanel;
+$("return-title").onclick = () =>
+  launch(() => {
+    hasSuspendedRun = true;
+    setMode("menu");
+  });
+$("victory-title").onclick = () =>
+  launch(() => {
+    hasSuspendedRun = false;
+    setMode("menu");
+  });
+$("sound").onclick = toggleSound;
+$("menu-audio-toggle").onclick = toggleSound;
+$("menu-fullscreen").onclick = async () => {
+  try {
+    if (document.fullscreenElement) await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  } catch {
+    $("menu-fullscreen").textContent = "Indisponible ici";
+  }
 };
-$("explore").onclick = () => {
-  exploring = true;
-  carrying = false;
-  $("seed-status").classList.remove("carrying");
-  $("seed-status").querySelector("span").textContent =
-    "LES TROIS JARDINS SONT ÉVEILLÉS";
-  setMode("play");
-  $("objective-text").textContent =
-    "Le jardin est à vous. Échap pour recommencer.";
-  showMessage("Prenez le temps. Le ciel est vivant.", 5);
-  mouseLook.capture();
+document.addEventListener("fullscreenchange", () => {
+  $("menu-fullscreen").textContent = document.fullscreenElement
+    ? "Réduire ←"
+    : "Plein écran →";
+});
+$("menu-reduced-motion").onchange = (event) => {
+  reducedMenuMotion = event.target.checked;
+  menuScene?.setReducedMotion?.(reducedMenuMotion);
+  try {
+    localStorage.setItem("helio-menu-motion", reducedMenuMotion ? "1" : "0");
+  } catch {}
 };
+$("reset-look").onclick = () => {
+  $("look-sensitivity").value = "1";
+  $("look-sensitivity").dispatchEvent(new Event("input"));
+  $("look-invert").checked = false;
+  $("look-invert").dispatchEvent(new Event("change"));
+};
+$("explore").onclick = () =>
+  launch(() => {
+    exploring = true;
+    carrying = false;
+    $("seed-status").classList.remove("carrying");
+    $("seed-status").querySelector("span").textContent =
+      "LES TROIS JARDINS SONT ÉVEILLÉS";
+    setMode("play");
+    $("objective-text").textContent =
+      "Le jardin est à vous. Échap pour revenir au sanctuaire.";
+    showMessage("Prenez le temps. Le ciel est vivant.", 5);
+    mouseLook.capture();
+  });
+for (const button of $("menu-navigation").querySelectorAll("[data-world]")) {
+  button.addEventListener("pointerenter", () =>
+    menuScene?.setHovered(button.dataset.world),
+  );
+  button.addEventListener("pointerleave", () =>
+    menuScene?.setHovered(document.activeElement?.dataset?.world || null),
+  );
+  button.addEventListener("focus", () =>
+    menuScene?.setHovered(button.dataset.world),
+  );
+  button.addEventListener("blur", () => menuScene?.setHovered(null));
+  button.addEventListener("keydown", (event) => {
+    if (!["ArrowDown", "ArrowUp"].includes(event.code)) return;
+    event.preventDefault();
+    const buttons = [
+      ...$("menu-navigation").querySelectorAll("button:not(.hidden)"),
+    ];
+    const index = buttons.indexOf(button);
+    buttons[
+      (index + (event.code === "ArrowDown" ? 1 : -1) + buttons.length) %
+        buttons.length
+    ].focus();
+  });
+}
+window.addEventListener("pointermove", (event) => {
+  if (mode !== "play") {
+    menuPointer.x = (event.clientX / innerWidth) * 2 - 1;
+    menuPointer.y = (event.clientY / innerHeight) * 2 - 1;
+  }
+});
 window.addEventListener("keydown", (e) => {
   if (
     [
@@ -1213,6 +1467,10 @@ window.addEventListener("keydown", (e) => {
   )
     e.preventDefault();
   if (e.code === "Escape") {
+    if (menuSection) {
+      closeMenuPanel();
+      return;
+    }
     if (mode === "play") setMode("pause");
     return;
   }
@@ -1310,6 +1568,14 @@ window.__HELIO__ = {
     interactReady,
     checkpoint: checkpoint.toArray(),
     target: target().toArray(),
+    menu: {
+      section: menuSection,
+      suspended: hasSuspendedRun,
+      transitioning,
+      title3D: !!menuScene?.titleReady,
+      reducedMotion: reducedMenuMotion,
+      drawCalls: mode !== "play" ? renderer?.info.render.calls : 0,
+    },
     view: {
       yaw,
       pitch,
@@ -1349,10 +1615,8 @@ if (
     freeze: () => setMode("pause"),
   };
 }
-try {
-  init();
-} catch (e) {
-  console.error(e);
+init().catch((error) => {
+  console.error(error);
   $("loading").classList.add("hidden");
   $("fatal").classList.remove("hidden");
-}
+});

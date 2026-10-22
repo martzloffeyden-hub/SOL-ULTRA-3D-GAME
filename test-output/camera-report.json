@@ -78,5 +78,5 @@
     "Blocked pointer lock on an element because the element's frame is sandboxed and the 'allow-pointer-lock' permission is not set."
   ],
   "passed": true,
-  "wall_seconds": 24.35
+  "wall_seconds": 34.05
 }

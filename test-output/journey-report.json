@@ -19,7 +19,7 @@
         "position": [
           0,
           7,
-          -2.57
+          -2.58
         ],
         "impacts": 0
       }
@@ -30,7 +30,7 @@
         "position": [
           2.95,
           11.49,
-          -10.86
+          -10.9
         ],
         "impacts": 0
       }
@@ -39,9 +39,9 @@
       "name": "chapter 1, ring 3: continuous seed passage",
       "detail": {
         "position": [
-          -0.96,
-          14.49,
-          -19.89
+          -0.95,
+          14.5,
+          -19.9
         ],
         "impacts": 0
       }
@@ -69,9 +69,9 @@
       "name": "chapter 2, ring 2: continuous seed passage",
       "detail": {
         "position": [
-          -16.08,
+          -16.1,
           19.48,
-          -50.03
+          -50.06
         ],
         "impacts": 0
       }
@@ -91,9 +91,9 @@
       "name": "chapter 2, ring 4: continuous seed passage",
       "detail": {
         "position": [
-          8.37,
+          8.32,
           17.11,
-          -71.24
+          -71.23
         ],
         "impacts": 0
       }
@@ -143,9 +143,9 @@
       "name": "chapter 3, ring 4: continuous seed passage",
       "detail": {
         "position": [
-          -2.44,
-          20.26,
-          -125.34
+          -2.41,
+          20.25,
+          -125.37
         ],
         "impacts": 1
       }
@@ -155,8 +155,8 @@
       "detail": {
         "position": [
           10.07,
-          31.85,
-          -136.6
+          31.84,
+          -136.57
         ],
         "impacts": 1
       }
@@ -164,7 +164,7 @@
     {
       "name": "continuous 12-ring, 3-garden journey reaches victory",
       "detail": {
-        "game_seconds": 52.42,
+        "game_seconds": 52.71,
         "impacts": 1
       }
     },
@@ -179,9 +179,9 @@
   ],
   "page_errors": [],
   "console_errors": [],
-  "simulated_seconds": 52.083,
-  "max_tether_during_flight": 2.688,
-  "continuous_path_meters": 227.313,
+  "simulated_seconds": 52.092,
+  "max_tether_during_flight": 2.711,
+  "continuous_path_meters": 227.588,
   "largest_physics_step_meters": 0.0608,
   "victory": {
     "mode": "won",
@@ -190,9 +190,9 @@
     "carrying": false,
     "phase": 1,
     "player": [
-      9.147652192979635,
-      30.160615486278168,
-      -145.46322809503164
+      9.14729926797009,
+      30.172743818300425,
+      -145.46861483572278
     ],
     "seed": [
       9,
@@ -200,27 +200,35 @@
       -146
     ],
     "velocity": [
-      -0.043894416088699435,
-      -0.007252758461702427,
-      -1.262487461029352
+      -0.042385885760348865,
+      -0.004843266994338374,
+      -1.293712974899825
     ],
-    "elapsed": 52.416733333331,
+    "elapsed": 52.70816666666435,
     "impacts": 1,
     "totalGates": 12,
-    "fps": 4,
-    "drawCalls": 248,
-    "triangles": 84510,
+    "fps": 5,
+    "drawCalls": 47,
+    "triangles": 22592,
     "interactReady": true,
     "checkpoint": [
-      10.070838688203603,
-      31.84513765534923,
-      -136.59884639347948
+      10.074283257017917,
+      31.842491595828434,
+      -136.5716828271807
     ],
     "target": [
       7,
       18,
       -82
     ],
+    "menu": {
+      "section": null,
+      "suspended": false,
+      "transitioning": false,
+      "title3D": true,
+      "reducedMotion": false,
+      "drawCalls": 47
+    },
     "view": {
       "yaw": 0,
       "pitch": -0.3,
@@ -245,5 +253,5 @@
     }
   },
   "passed": true,
-  "wall_seconds": 8.9
+  "wall_seconds": 13.19
 }
