@@ -1,0 +1,13 @@
+{
+  "name": "helio-jardin-des-orbites",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Une aventure de vol et de résonance dans trois jardins célestes.",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "python tests/browser.py",
+    "test:journey": "python tests/journey.py"
+  }
+}

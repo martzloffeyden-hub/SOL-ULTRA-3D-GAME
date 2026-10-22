@@ -80,7 +80,7 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+# dist contains the authored static game and is tracked.
 .output
 
 # Gatsby files
@@ -147,3 +147,10 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Generated QA captures
+/test-output/*.png
+
+# Python test bytecode
+__pycache__/
+*.pyc

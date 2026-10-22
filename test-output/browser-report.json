@@ -1,0 +1,207 @@
+{
+  "url": "http://127.0.0.1:4173",
+  "viewport": [
+    1440,
+    900
+  ],
+  "checks": [
+    {
+      "name": "load, WebGL initialization and menu",
+      "detail": null
+    },
+    {
+      "name": "W forward movement",
+      "detail": 3.95
+    },
+    {
+      "name": "A lateral movement",
+      "detail": 3.95
+    },
+    {
+      "name": "left arrow turns flight heading left",
+      "detail": null
+    },
+    {
+      "name": "mouse drag changes flight heading",
+      "detail": null
+    },
+    {
+      "name": "Space ascent and C descent",
+      "detail": null
+    },
+    {
+      "name": "floating island cap collision keeps the drone above its surface",
+      "detail": null
+    },
+    {
+      "name": "Shift boost",
+      "detail": {
+        "normal": 3.95,
+        "boost": 6.84
+      }
+    },
+    {
+      "name": "E pickup and F tether compression",
+      "detail": null
+    },
+    {
+      "name": "Escape pause freezes simulation; Resume returns to flight",
+      "detail": null
+    },
+    {
+      "name": "thorn collision ejects; R restores checkpoint and seed",
+      "detail": null
+    },
+    {
+      "name": "chapter 1 gate 1: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "completed gate checkpoint retains progression",
+      "detail": null
+    },
+    {
+      "name": "chapter 1 gate 2: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 1 gate 3: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 1 delivery and transition",
+      "detail": null
+    },
+    {
+      "name": "saved chapter 2 survives reload and Continue resumes it",
+      "detail": null
+    },
+    {
+      "name": "wrong resonance blocks player and completion",
+      "detail": 0.711
+    },
+    {
+      "name": "chapter 2 gate 1: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 2 gate 2: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 2 gate 3: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 2 gate 4: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 2 delivery and transition",
+      "detail": null
+    },
+    {
+      "name": "saved chapter 3 survives reload and Continue resumes it",
+      "detail": null
+    },
+    {
+      "name": "chapter 3 gate 1: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 3 gate 2: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 3 gate 3: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 3 gate 4: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "chapter 3 gate 5: seed crossed using flight physics",
+      "detail": null
+    },
+    {
+      "name": "final delivery, victory screen and 12-gate score",
+      "detail": null
+    },
+    {
+      "name": "Replay resets the complete journey",
+      "detail": null
+    },
+    {
+      "name": "software renderer FPS sampled",
+      "detail": 3.9
+    },
+    {
+      "name": "1024×768 viewport resize",
+      "detail": null
+    },
+    {
+      "name": "no uncaught JavaScript, console errors or failed HTTP responses",
+      "detail": null
+    }
+  ],
+  "console_errors": [],
+  "page_errors": [],
+  "http_errors": [],
+  "rendering": {
+    "viewport": [
+      1440,
+      900
+    ],
+    "drawingBuffer": [
+      936,
+      585
+    ],
+    "warmupSeconds": 4,
+    "frames": 20,
+    "seconds": 5.194300000000094,
+    "observedFPS": 3.8503744489150873,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "telemetry": {
+      "mode": "play",
+      "chapter": 0,
+      "gateIndex": 0,
+      "carrying": false,
+      "phase": 0,
+      "player": [
+        0,
+        7,
+        16
+      ],
+      "seed": [
+        0,
+        7.249896459341121,
+        9
+      ],
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "elapsed": 3.7500999999999918,
+      "impacts": 0,
+      "totalGates": 0,
+      "fps": 4,
+      "drawCalls": 200,
+      "triangles": 87424,
+      "interactReady": false,
+      "checkpoint": [
+        0,
+        7,
+        16
+      ],
+      "target": [
+        0,
+        7,
+        9
+      ]
+    }
+  },
+  "passed": true,
+  "wall_seconds": 53.38
+}

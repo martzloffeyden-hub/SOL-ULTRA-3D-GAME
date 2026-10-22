@@ -1,0 +1,227 @@
+{
+  "url": "http://127.0.0.1:4173",
+  "qa_hooks_used": [
+    "step"
+  ],
+  "teleports": 0,
+  "checks": [
+    {
+      "name": "start through user interface; only QA step remains available",
+      "detail": null
+    },
+    {
+      "name": "chapter 1: continuously fly to seed and collect with E",
+      "detail": null
+    },
+    {
+      "name": "chapter 1, ring 1: continuous seed passage",
+      "detail": {
+        "position": [
+          0,
+          7,
+          -2.58
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 1, ring 2: continuous seed passage",
+      "detail": {
+        "position": [
+          2.95,
+          11.49,
+          -10.86
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 1, ring 3: continuous seed passage",
+      "detail": {
+        "position": [
+          -0.95,
+          14.5,
+          -19.89
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 1: deliver and transition using real UI",
+      "detail": null
+    },
+    {
+      "name": "chapter 2: continuously fly to seed and collect with E",
+      "detail": null
+    },
+    {
+      "name": "chapter 2, ring 1: continuous seed passage",
+      "detail": {
+        "position": [
+          -9.04,
+          14.35,
+          -40.61
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 2, ring 2: continuous seed passage",
+      "detail": {
+        "position": [
+          -16.08,
+          19.48,
+          -50.03
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 2, ring 3: continuous seed passage",
+      "detail": {
+        "position": [
+          -3.04,
+          21.95,
+          -61.44
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 2, ring 4: continuous seed passage",
+      "detail": {
+        "position": [
+          8.35,
+          17.11,
+          -71.24
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 2: deliver and transition using real UI",
+      "detail": null
+    },
+    {
+      "name": "chapter 3: continuously fly to seed and collect with E",
+      "detail": null
+    },
+    {
+      "name": "chapter 3, ring 1: continuous seed passage",
+      "detail": {
+        "position": [
+          12.84,
+          22.4,
+          -92.39
+        ],
+        "impacts": 0
+      }
+    },
+    {
+      "name": "chapter 3, ring 2: continuous seed passage",
+      "detail": {
+        "position": [
+          -1.37,
+          28.68,
+          -103.47
+        ],
+        "impacts": 1
+      }
+    },
+    {
+      "name": "chapter 3, ring 3: continuous seed passage",
+      "detail": {
+        "position": [
+          -15.48,
+          28.13,
+          -115.27
+        ],
+        "impacts": 1
+      }
+    },
+    {
+      "name": "chapter 3, ring 4: continuous seed passage",
+      "detail": {
+        "position": [
+          -2.44,
+          20.26,
+          -125.34
+        ],
+        "impacts": 1
+      }
+    },
+    {
+      "name": "chapter 3, ring 5: continuous seed passage",
+      "detail": {
+        "position": [
+          10.07,
+          31.85,
+          -136.6
+        ],
+        "impacts": 1
+      }
+    },
+    {
+      "name": "continuous 12-ring, 3-garden journey reaches victory",
+      "detail": {
+        "game_seconds": 52.82,
+        "impacts": 1
+      }
+    },
+    {
+      "name": "replay returns to a clean initial journey",
+      "detail": null
+    },
+    {
+      "name": "no uncaught JavaScript or console errors",
+      "detail": null
+    }
+  ],
+  "page_errors": [],
+  "console_errors": [],
+  "simulated_seconds": 52.083,
+  "max_tether_during_flight": 2.661,
+  "continuous_path_meters": 226.834,
+  "largest_physics_step_meters": 0.0608,
+  "victory": {
+    "mode": "won",
+    "chapter": 2,
+    "gateIndex": 5,
+    "carrying": false,
+    "phase": 1,
+    "player": [
+      9.16622932202879,
+      30.17725416287766,
+      -145.48234493269024
+    ],
+    "seed": [
+      9,
+      30,
+      -146
+    ],
+    "velocity": [
+      -0.003446912022581712,
+      -0.004493603934079541,
+      -1.2958850777871866
+    ],
+    "elapsed": 52.81663333333101,
+    "impacts": 1,
+    "totalGates": 12,
+    "fps": 5,
+    "drawCalls": 123,
+    "triangles": 57678,
+    "interactReady": true,
+    "checkpoint": [
+      10.069910849219786,
+      31.845835247235133,
+      -136.59823067605473
+    ],
+    "target": [
+      7,
+      18,
+      -82
+    ]
+  },
+  "passed": true,
+  "wall_seconds": 9.35
+}
