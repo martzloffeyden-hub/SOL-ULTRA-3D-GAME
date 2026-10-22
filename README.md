@@ -22,15 +22,18 @@ Le jeu cible un ordinateur avec clavier, souris et navigateur récent compatible
 | --- | --- |
 | ZQSD / WASD | Vol horizontal, relatif à la caméra |
 | Espace / C | Monter / descendre |
-| Glisser la souris, bouton gauche ou droit | Tourner la caméra |
+| Clic dans le jeu puis déplacer la souris | Regarder librement sur deux axes |
+| Maintenir un clic et glisser | Solution de repli si la capture est indisponible |
 | Flèches gauche / droite | Tourner sans souris |
 | Maj | Accélérer |
 | F maintenu | Resserrer le lien, ralentir et guider plus précisément |
 | X | Alterner entre résonance solaire et lunaire |
 | E | Recueillir la graine / réveiller un jardin à proximité |
 | R | Revenir au dernier point de reprise |
-| Échap | Pause / reprise |
+| Échap | Libérer la souris et mettre en pause |
 | Bouton ♫ | Couper ou activer le son |
+
+La pause permet de régler la sensibilité de la souris et d’inverser la vue verticale. Le bouton **Reprendre le vol** recapture la souris.
 
 ## Le voyage
 
@@ -46,6 +49,7 @@ La progression est sauvegardée **au début de chaque jardin** dans le stockage 
 
 - `dist/game.js` : simulation, commandes, caméra, graine, collisions, interface et progression.
 - `dist/world.js` : archipel, architecture, végétation, ciel et lever du soleil final.
+- `dist/mouse-look.js` : capture de la souris, regard libre et glisser de repli.
 - `dist/audio.js` : musique et effets synthétisés avec Web Audio, démarrés après une interaction.
 - `dist/levels.js` : parcours et obstacles des trois jardins.
 - `dist/physics.js` : intersection continue des anneaux et contacts sphériques.
@@ -65,6 +69,7 @@ Tests de géométrie avec le lanceur intégré de Node.js. Pour les tests naviga
 
 ```sh
 python tests/browser.py
+python tests/camera.py
 python tests/journey.py
 ```
 

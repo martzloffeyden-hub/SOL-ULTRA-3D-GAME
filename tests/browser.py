@@ -100,16 +100,16 @@ def main():
             check("left arrow turns flight heading left")
 
             qa("setPosition", [0, 7, 16])
-            qa("setYaw", 0)
             page.mouse.move(600, 400)
+            qa("setYaw", 0)
             page.mouse.down()
-            page.mouse.move(850, 400, steps=5)
+            page.mouse.move(950, 400, steps=7)
             page.mouse.up()
             page.keyboard.down("w")
             turned = simulate(.75)["player"]
             page.keyboard.up("w")
-            assert turned[0] < -2, turned
-            check("mouse drag changes flight heading")
+            assert turned[0] > 2, turned
+            check("mouse look turns flight heading right", {"pointerLock": state()["view"]["locked"]})
 
             qa("setPosition", [0, 7, 16])
             qa("setYaw", 0)
@@ -162,6 +162,9 @@ def main():
 
             page.keyboard.press("Escape")
             assert state()["mode"] == "pause"
+            page.wait_for_function("document.pointerLockElement === null")
+            page.keyboard.press("Escape")
+            assert state()["mode"] == "pause"
             paused = state()
             page.keyboard.down("w")
             page.wait_for_timeout(400)
@@ -170,7 +173,7 @@ def main():
             assert state()["elapsed"] == paused["elapsed"]
             page.locator("#resume").click()
             assert state()["mode"] == "play"
-            check("Escape pause freezes simulation; Resume returns to flight")
+            check("Escape releases mouse and freezes simulation; Resume returns to flight")
 
             # Restart resets the counter potentially advanced during movement checks.
             page.keyboard.press("Escape")
@@ -264,6 +267,10 @@ def main():
                 assert state()["carrying"] is False
                 if ci < 2:
                     assert state()["mode"] == "chapter"
+                    page.wait_for_function("document.pointerLockElement === null")
+                    assert state()["view"]["locked"] is False
+                    page.wait_for_timeout(150)
+                    assert state()["mode"] == "chapter", "Asynchronous mouse unlock replaced the chapter screen"
                     page.screenshot(path=str(OUTPUT / f"03-chapter-{ci + 1}.png"))
                     page.locator("#next").click()
                     assert state()["mode"] == "play"
@@ -285,6 +292,10 @@ def main():
                     check(f"saved chapter {ci + 2} survives reload and Continue resumes it")
                 else:
                     assert state()["mode"] == "won"
+                    page.wait_for_function("document.pointerLockElement === null")
+                    assert state()["view"]["locked"] is False
+                    page.wait_for_timeout(150)
+                    assert state()["mode"] == "won", "Asynchronous mouse unlock replaced the victory screen"
                     assert state()["totalGates"] == 12
                     assert "12" in page.locator("#stats").inner_text()
                     page.screenshot(path=str(OUTPUT / "04-victory.png"))

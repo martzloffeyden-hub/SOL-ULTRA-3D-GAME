@@ -3,6 +3,7 @@ import { createWorld } from "./world.js";
 import { AudioGarden } from "./audio.js";
 import { LEVELS } from "./levels.js";
 import { crossing, sphereContact } from "./physics.js";
+import { createMouseLook } from "./mouse-look.js";
 
 const $ = (id) => document.getElementById(id),
   V = (a) => new THREE.Vector3(...a);
@@ -21,7 +22,7 @@ let mode = "menu",
   impacts = 0,
   totalGates = 0;
 let yaw = 0,
-  pitch = 0.18,
+  pitch = -0.3,
   time = 0,
   messageUntil = 0,
   impactCooldown = 0,
@@ -59,11 +60,17 @@ let gateMeshes = [],
   burstColors,
   burstGeometry,
   burstPoints;
-let drag = false,
-  lastMouse = { x: 0, y: 0 },
-  frameCount = 0,
-  frameTime = 0,
-  perfFrames = 0,
+const cameraAnchor = new THREE.Vector3();
+let sensitivity = 1,
+  invertLook = false;
+try {
+  sensitivity = Math.max(
+    0.4,
+    Math.min(2, Number(localStorage.getItem("helio-look-sensitivity")) || 1),
+  );
+  invertLook = localStorage.getItem("helio-look-invert") === "1";
+} catch {}
+let perfFrames = 0,
   perfTime = 0,
   measuredFPS = 60,
   qualityReduced = false;
@@ -580,7 +587,7 @@ function loadChapter(index, persist = true) {
   previousSeed.copy(seedPos);
   checkpoint.copy(player);
   yaw = 0;
-  pitch = 0.18;
+  pitch = -0.3;
   lastFlight.set(0, 0, -1);
   trailPoints = [];
   world.setChapter(index);
@@ -599,8 +606,7 @@ function loadChapter(index, persist = true) {
   updateUI();
   updatePhase();
   updateDrone(0);
-  camera.position.copy(player).add(new THREE.Vector3(0, 5.5, 13));
-  camera.lookAt(player.clone().add(new THREE.Vector3(0, 1, -4)));
+  updateCamera(0, true);
   if (persist) saveCheckpoint();
 }
 function startGame(resume = false) {
@@ -625,11 +631,13 @@ function startGame(resume = false) {
   sound.start();
   sound.pause(false);
   showMessage(LEVELS[idx].hint, 8);
+  mouseLook.capture();
 }
 function setMode(next) {
   mode = next;
   keys.clear();
-  drag = false;
+  mouseLook.release();
+  $("look-hint").textContent = "CLIC DANS LE JEU · VUE À LA SOURIS";
   for (const id of ["menu", "pause", "chapter-screen", "victory"])
     $(id).classList.add("hidden");
   $("hud").classList.toggle("hidden", next !== "play");
@@ -760,6 +768,7 @@ function resetToCheckpoint() {
   else seedPos.copy(V(LEVELS[chapter].seed));
   previousSeed.copy(seedPos);
   trailPoints = [];
+  updateCamera(0, true);
   impactCooldown = 1;
   showMessage("Le lien se retisse au dernier point de reprise.", 3);
 }
@@ -1071,6 +1080,24 @@ function visuals(dt) {
   burstGeometry.attributes.color.needsUpdate = true;
   if (messageUntil < time) $("message").classList.remove("visible");
 }
+function updateCamera(dt, snap = false) {
+  const anchor = player.clone().add(new THREE.Vector3(0, 0.85, 0));
+  if (snap) cameraAnchor.copy(anchor);
+  else cameraAnchor.lerp(anchor, 1 - Math.exp(-dt * 12));
+  const direction = new THREE.Vector3(
+    Math.sin(yaw) * Math.cos(pitch),
+    Math.sin(pitch),
+    -Math.cos(yaw) * Math.cos(pitch),
+  );
+  camera.position.copy(cameraAnchor).addScaledVector(direction, -11.6);
+  camera.lookAt(
+    cameraAnchor
+      .clone()
+      .addScaledVector(direction, 3.5)
+      .add(new THREE.Vector3(0, 1, 0)),
+  );
+  camera.updateMatrixWorld();
+}
 let last = performance.now();
 function loop(now) {
   const realDT = Math.max(0.001, (now - last) / 1000);
@@ -1080,17 +1107,7 @@ function loop(now) {
   if (mode === "play") {
     const steps = Math.max(1, Math.ceil(dt / 0.016));
     for (let i = 0; i < steps; i++) step(dt / steps);
-    const dir = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw));
-    const offset = dir.clone().multiplyScalar(-11.6);
-    offset.y = 5.8 + pitch * 9;
-    const desired = player.clone().add(offset);
-    camera.position.lerp(desired, 1 - Math.exp(-dt * 5));
-    camera.lookAt(
-      player
-        .clone()
-        .addScaledVector(dir, 3.5)
-        .add(new THREE.Vector3(0, 1.1, 0)),
-    );
+    updateCamera(dt);
   } else if (mode === "menu") {
     player.set(3.5, 7.5 + Math.sin(time * 0.6) * 0.4, 7);
     seedPos.set(2, 8 + Math.sin(time) * 0.2, 10);
@@ -1134,13 +1151,17 @@ function updateSoundButton() {
 }
 $("start").onclick = () => startGame();
 $("continue").onclick = () => startGame(true);
-$("resume").onclick = () => setMode("play");
+$("resume").onclick = () => {
+  setMode("play");
+  mouseLook.capture();
+};
 $("restart").onclick = () => startGame();
 $("replay").onclick = () => startGame();
 $("next").onclick = () => {
   loadChapter(chapter + 1);
   setMode("play");
   showMessage(LEVELS[chapter].hint, 8);
+  mouseLook.capture();
 };
 $("pause-button").onclick = () => setMode("pause");
 $("help-toggle").onclick = () => $("help").classList.toggle("hidden");
@@ -1163,6 +1184,7 @@ $("explore").onclick = () => {
   $("objective-text").textContent =
     "Le jardin est à vous. Échap pour recommencer.";
   showMessage("Prenez le temps. Le ciel est vivant.", 5);
+  mouseLook.capture();
 };
 window.addEventListener("keydown", (e) => {
   if (
@@ -1192,7 +1214,6 @@ window.addEventListener("keydown", (e) => {
     e.preventDefault();
   if (e.code === "Escape") {
     if (mode === "play") setMode("pause");
-    else if (mode === "pause") setMode("play");
     return;
   }
   if (mode !== "play") return;
@@ -1210,31 +1231,59 @@ window.addEventListener("keydown", (e) => {
 window.addEventListener("keyup", (e) => keys.delete(e.code));
 window.addEventListener("blur", () => {
   keys.clear();
-  drag = false;
+  mouseLook.release();
   if (mode === "play") setMode("pause");
 });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && mode === "play") setMode("pause");
 });
-canvas.addEventListener("pointerdown", (e) => {
-  if (mode === "play" && (e.button === 0 || e.button === 2)) {
-    drag = true;
-    lastMouse = { x: e.clientX, y: e.clientY };
-    canvas.setPointerCapture(e.pointerId);
-  }
+const mouseLook = createMouseLook(canvas, {
+  isPlaying: () => mode === "play",
+  onLook: (dx, dy) => {
+    if (!Number.isFinite(dx) || !Number.isFinite(dy)) return;
+    const scale = 0.0022 * sensitivity;
+    yaw =
+      THREE.MathUtils.euclideanModulo(yaw + dx * scale + Math.PI, Math.PI * 2) -
+      Math.PI;
+    pitch = THREE.MathUtils.clamp(
+      pitch + dy * scale * (invertLook ? 1 : -1),
+      -1.05,
+      1.05,
+    );
+  },
+  onLockChange: (active, lost) => {
+    $("look-hint").textContent = active
+      ? "VUE SOURIS ACTIVE · ÉCHAP POUR LIBÉRER"
+      : "CLIC DANS LE JEU · VUE À LA SOURIS";
+    if (lost && mode === "play") setMode("pause");
+  },
+  onFallback: (firstNotice) => {
+    $("look-hint").textContent = "MAINTENIR UN CLIC ET GLISSER · REGARDER";
+    if (firstNotice)
+      showMessage(
+        "Maintenez un clic et glissez pour regarder autour de vous.",
+        4,
+      );
+  },
 });
-canvas.addEventListener("pointermove", (e) => {
-  if (!drag || mode !== "play") return;
-  yaw -= (e.clientX - lastMouse.x) * 0.004;
-  pitch = THREE.MathUtils.clamp(
-    pitch + (e.clientY - lastMouse.y) * 0.003,
-    -0.25,
-    0.75,
-  );
-  lastMouse = { x: e.clientX, y: e.clientY };
+$("look-sensitivity").value = sensitivity;
+$("look-sensitivity-value").value =
+  sensitivity.toFixed(1).replace(".", ",") + "×";
+$("look-invert").checked = invertLook;
+$("look-sensitivity").addEventListener("input", (event) => {
+  sensitivity = Number(event.target.value);
+  $("look-sensitivity-value").value =
+    sensitivity.toFixed(1).replace(".", ",") + "×";
+  try {
+    localStorage.setItem("helio-look-sensitivity", String(sensitivity));
+  } catch {}
 });
-canvas.addEventListener("pointerup", () => (drag = false));
-canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+$("look-invert").addEventListener("change", (event) => {
+  invertLook = event.target.checked;
+  try {
+    localStorage.setItem("helio-look-invert", invertLook ? "1" : "0");
+  } catch {}
+});
 window.addEventListener("resize", resize);
 canvas.addEventListener("webglcontextlost", (e) => {
   e.preventDefault();
@@ -1261,6 +1310,16 @@ window.__HELIO__ = {
     interactReady,
     checkpoint: checkpoint.toArray(),
     target: target().toArray(),
+    view: {
+      yaw,
+      pitch,
+      locked: mouseLook.locked(),
+      sensitivity,
+      inverted: invertLook,
+      direction: camera?.getWorldDirection(new THREE.Vector3()).toArray(),
+      position: camera?.position.toArray(),
+      anchor: cameraAnchor.toArray(),
+    },
   }),
   levels: LEVELS,
 };

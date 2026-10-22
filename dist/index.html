@@ -64,7 +64,7 @@
             <kbd>ESPACE</kbd><span>monter</span><kbd>C</kbd
             ><span>descendre</span>
           </div>
-          <div><kbd>GLISSER</kbd><span>la souris · regarder</span></div>
+          <div><kbd>SOURIS</kbd><span>regarder · clic pour capturer</span></div>
         </div>
       </div>
       <div class="menu-footer">
@@ -112,6 +112,7 @@
         <span id="speed">0</span><small>m/s</small>
         <div><i id="speed-fill"></i></div>
       </div>
+      <div id="look-hint">CLIC DANS LE JEU · VUE À LA SOURIS</div>
       <div id="controls">
         <span><kbd>ZQSD</kbd> / <kbd>WASD</kbd> Voler</span
         ><span><kbd>ESPACE</kbd> ↑ <kbd>C</kbd> ↓</span
@@ -131,13 +132,38 @@
         ><button id="help-toggle" class="text-button">
           Les commandes et le voyage
         </button>
+        <div class="camera-settings">
+          <label for="look-sensitivity"
+            >Sensibilité de la souris
+            <output id="look-sensitivity-value" for="look-sensitivity"
+              >1,0×</output
+            ></label
+          >
+          <input
+            id="look-sensitivity"
+            type="range"
+            min="0.4"
+            max="2"
+            step="0.1"
+            value="1"
+          />
+          <label class="invert-setting"
+            ><input id="look-invert" type="checkbox" /> Inverser la vue
+            verticale</label
+          >
+        </div>
         <div id="help" class="hidden help">
+          <p>
+            Un clic dans le jeu capture la souris : regardez sans maintenir de
+            bouton. Échap libère le curseur et met en pause. Si la capture est
+            indisponible, maintenez un clic et glissez.
+          </p>
           <p>
             <b>ZQSD / WASD</b> : avancer, reculer et glisser latéralement.<br /><b
               >Espace / C</b
             >
-            : monter / descendre.<br /><b>Glisser la souris / ← →</b> : tourner
-            la caméra.<br /><b>Maj</b> : accélérer. <b>F</b> : rapprocher la
+            : monter / descendre.<br /><b>Souris / ← →</b> : tourner la
+            caméra.<br /><b>Maj</b> : accélérer. <b>F</b> : rapprocher la
             graine.<br /><b>X</b> : alterner les résonances solaire et
             lunaire.<br /><b>E</b> : recueillir la graine ou réveiller un
             jardin.<br /><b>R</b> : revenir au dernier anneau franchi.

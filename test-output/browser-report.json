@@ -22,8 +22,10 @@
       "detail": null
     },
     {
-      "name": "mouse drag changes flight heading",
-      "detail": null
+      "name": "mouse look turns flight heading right",
+      "detail": {
+        "pointerLock": true
+      }
     },
     {
       "name": "Space ascent and C descent",
@@ -45,7 +47,7 @@
       "detail": null
     },
     {
-      "name": "Escape pause freezes simulation; Resume returns to flight",
+      "name": "Escape releases mouse and freezes simulation; Resume returns to flight",
       "detail": null
     },
     {
@@ -134,7 +136,7 @@
     },
     {
       "name": "software renderer FPS sampled",
-      "detail": 3.9
+      "detail": 3.8
     },
     {
       "name": "1024×768 viewport resize",
@@ -159,8 +161,8 @@
     ],
     "warmupSeconds": 4,
     "frames": 20,
-    "seconds": 5.194300000000094,
-    "observedFPS": 3.8503744489150873,
+    "seconds": 5.206600000000093,
+    "observedFPS": 3.8412783774439445,
     "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
     "telemetry": {
       "mode": "play",
@@ -175,7 +177,7 @@
       ],
       "seed": [
         0,
-        7.249896459341121,
+        7.222212358429605,
         9
       ],
       "velocity": [
@@ -183,12 +185,12 @@
         0,
         0
       ],
-      "elapsed": 3.7500999999999918,
+      "elapsed": 3.7333999999999925,
       "impacts": 0,
       "totalGates": 0,
       "fps": 4,
-      "drawCalls": 200,
-      "triangles": 87424,
+      "drawCalls": 205,
+      "triangles": 87574,
       "interactReady": false,
       "checkpoint": [
         0,
@@ -199,9 +201,31 @@
         0,
         7,
         9
-      ]
+      ],
+      "view": {
+        "yaw": 0,
+        "pitch": -0.3,
+        "locked": true,
+        "sensitivity": 1,
+        "inverted": false,
+        "direction": [
+          -0.0,
+          -0.23338669923158478,
+          -0.972384002656248
+        ],
+        "position": [
+          0,
+          11.278034397271538,
+          27.08190327385703
+        ],
+        "anchor": [
+          0,
+          7.85,
+          16
+        ]
+      }
     }
   },
   "passed": true,
-  "wall_seconds": 53.38
+  "wall_seconds": 56.78
 }

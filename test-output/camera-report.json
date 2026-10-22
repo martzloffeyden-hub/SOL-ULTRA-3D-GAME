@@ -1,0 +1,82 @@
+{
+  "checks": [
+    {
+      "name": "Start captures the actual browser pointer lock",
+      "detail": null
+    },
+    {
+      "name": "Mouse right turns right, with stable per-pixel sensitivity",
+      "detail": 0.308
+    },
+    {
+      "name": "Rendered yaw follows input without an angular spring; orbit remains 11.6 units",
+      "detail": null
+    },
+    {
+      "name": "Forward flight follows the same rightward mouse heading",
+      "detail": null
+    },
+    {
+      "name": "Mouse up looks up on a real vertical axis",
+      "detail": null
+    },
+    {
+      "name": "Vertical look clamps safely without flipping or changing orbit radius",
+      "detail": null
+    },
+    {
+      "name": "Escape releases the cursor, pauses once, and paused mouse motion is ignored",
+      "detail": null
+    },
+    {
+      "name": "Pause exposes keyboard-accessible sensitivity and vertical inversion controls",
+      "detail": null
+    },
+    {
+      "name": "Repeated Resume and Escape cycles recapture and release cleanly",
+      "detail": null
+    },
+    {
+      "name": "Sensitivity and inversion persist across a reload",
+      "detail": null
+    },
+    {
+      "name": "Lower sensitivity changes angular travel and inverted up motion looks down",
+      "detail": null
+    },
+    {
+      "name": "Sandbox denial is recoverable and advertises drag fallback",
+      "detail": null
+    },
+    {
+      "name": "Fallback dragging preserves conventional horizontal and vertical directions",
+      "detail": null
+    },
+    {
+      "name": "Releasing a fallback drag stops rotation",
+      "detail": null
+    },
+    {
+      "name": "Pointer cancellation clears fallback drag state",
+      "detail": null
+    },
+    {
+      "name": "Lost pointer capture clears fallback drag state",
+      "detail": null
+    },
+    {
+      "name": "No uncaught JavaScript or unexpected console errors",
+      "detail": null
+    }
+  ],
+  "page_errors": [],
+  "console_errors": [],
+  "expected_sandbox_errors": [
+    "Blocked pointer lock on an element because the element's frame is sandboxed and the 'allow-pointer-lock' permission is not set.",
+    "Blocked pointer lock on an element because the element's frame is sandboxed and the 'allow-pointer-lock' permission is not set.",
+    "Blocked pointer lock on an element because the element's frame is sandboxed and the 'allow-pointer-lock' permission is not set.",
+    "Blocked pointer lock on an element because the element's frame is sandboxed and the 'allow-pointer-lock' permission is not set."
+  ],
+  "passed": true,
+  "wall_seconds": 24.35
+}

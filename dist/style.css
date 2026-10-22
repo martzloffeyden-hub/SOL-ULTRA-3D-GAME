@@ -746,3 +746,71 @@ h2 {
 #target-marker > span {
   filter: drop-shadow(0 0 5px #ffc87980);
 }
+
+#game {
+  cursor: grab;
+}
+#game:active {
+  cursor: grabbing;
+}
+#game.mouse-locked {
+  cursor: none;
+}
+#look-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 142px;
+  transform: translateX(-50%);
+  font-size: 8px;
+  letter-spacing: 1.7px;
+  color: #e4d1ac9a;
+  text-align: center;
+  white-space: nowrap;
+}
+.camera-settings {
+  margin: 22px 0 8px;
+  padding: 18px 0 12px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+  color: #eaddc0bf;
+}
+.camera-settings > label:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.camera-settings output {
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.camera-settings input[type="range"] {
+  width: 100%;
+  margin: 16px 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+.invert-setting {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  cursor: pointer;
+}
+.invert-setting input {
+  accent-color: var(--gold);
+  margin: 0;
+}
+@media (max-height: 760px) {
+  .camera-settings {
+    margin: 14px 0 6px;
+    padding: 14px 0;
+  }
+  .modal-card:has(#look-sensitivity) {
+    max-height: 94vh;
+    overflow: auto;
+  }
+}
+/* Cursor access after Escape also exposes the global audio control. */
+#sound {
+  z-index: 10;
+}

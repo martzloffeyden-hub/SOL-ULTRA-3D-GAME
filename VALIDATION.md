@@ -18,12 +18,18 @@ La suite `browser.py` utilise de vrais événements clavier et souris. Le mode Q
 
 ## Parcours continu supplémentaire
 
-`python tests/journey.py` a également atteint la victoire depuis le début sans aucun placement artificiel : **21 contrôles**, trois graines, douze anneaux, trois livraisons et rejeu. Seule la fonction QA `step` accélère la physique ; toutes les commandes passent par les événements de touches et les boutons. Le trajet mesuré couvre **226.834 mètres**, avec une collision naturelle récupérée sans blocage et un lien de longueur maximale 2,724 mètres. Il s’agit d’un pilotage automatique de la simulation, pas d’une partie manuelle en temps réel.
+`python tests/journey.py` a également atteint la victoire depuis le début sans aucun placement artificiel : **21 contrôles**, trois graines, douze anneaux, trois livraisons et rejeu. Seule la fonction QA `step` accélère la physique ; toutes les commandes passent par les événements de touches et les boutons. Le trajet mesuré couvre **227.313 mètres**, avec une collision naturelle récupérée sans blocage et un lien de longueur maximale 2,724 mètres. Il s’agit d’un pilotage automatique de la simulation, pas d’une partie manuelle en temps réel.
 
 ## Performance : mesure et limites
 
-Après quatre secondes de chauffe : **20 images en 5.194 secondes, soit 3.85 images/s**, avec **SwiftShader Vulkan sur CPU**, fenêtre 1440×900, rendu interne 936×585, environ 200 appels de rendu et 87 424 triangles. Le rendu logiciel reste lent. Aucun résultat de performance sur GPU matériel n’a été mesuré, et aucune promesse de 60 FPS n’est faite.
+Après quatre secondes de chauffe : **20 images en 5.207 secondes, soit 3.84 images/s**, avec **SwiftShader Vulkan sur CPU**, fenêtre 1440×900, rendu interne 936×585, environ 200 appels de rendu et 87 424 triangles. Le rendu logiciel reste lent. Aucun résultat de performance sur GPU matériel n’a été mesuré, et aucune promesse de 60 FPS n’est faite.
 
 Le post-traitement coûteux a été retiré ; les matériaux lumineux et sprites conservent l’atmosphère. Les décors sont instanciés, les éléments de jeu futurs sont masqués et la résolution s’adapte automatiquement. Il faut néanmoins tester sur le navigateur et le matériel de destination pour évaluer leur fluidité réelle.
 
 Le rapport machine et les captures sont produits dans `test-output/` lors de l’exécution des tests.
+
+## Correction de caméra — version 1.0.1
+
+La vue utilise désormais une vraie orbite horizontale et verticale, avec un sens horizontal conventionnel. La rotation répond directement à l’entrée ; seul le suivi de la position du vaisseau est amorti. Un clic capture le pointeur ; Échap le libère et met en pause. La pause propose une sensibilité de 0,4× à 2× et une inversion verticale, sauvegardées dans le navigateur. Le glisser reste disponible quand une iframe ou le navigateur refuse la capture.
+
+**17 vérifications supplémentaires réussies** avec `python tests/camera.py`, en utilisant une capture native réelle dans Chromium : droite/haut, cohérence entre vol et vue, orbite de 11,6 unités, absence de retard angulaire, limites verticales, Échap, reprises répétées, réglages, persistance, refus de capture dans une iframe et nettoyage du glisser après relâchement ou annulation. Aucune erreur JavaScript non interceptée ; les refus de capture provoqués volontairement dans l’iframe sont consignés séparément dans `test-output/camera-report.json`.
