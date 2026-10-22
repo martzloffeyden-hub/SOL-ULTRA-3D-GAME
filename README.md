@@ -1,14 +1,34 @@
 # HÉLIO — Le jardin des orbites
 
+**Un voyage de vol et de résonance dans trois jardins célestes.**
+
+[**Jouer dans le navigateur →**](https://helio-jardin-des-orbites.martzloffeyden.chatgpt.site/?v=1.1.0) · [Lancer le projet](#jouer) · [Commandes](#commandes) · [Tests et validation](VALIDATION.md)
+
+![Le sanctuaire : titre HÉLIO en relief, astrolabe animé et navigation intégrée à la scène 3D](docs/images/sanctuaire.png)
+
 Une aventure originale de vol en trois dimensions. Pilotez un insecte solaire, recueillez une graine de lumière et guidez-la à travers trois jardins suspendus pour réveiller le soleil.
+
+**3 jardins · 12 couronnes · 2 résonances · Musique procédurale · Sauvegarde locale**
+
+## Captures du jeu
+
+| Vol et lien avec la graine | Réglages du voyage |
+| --- | --- |
+| ![Un insecte solaire guide sa graine à travers les anneaux du jardin](docs/images/vol.png) | ![Vue, son, plein écran et animations réunis dans le menu des réglages](docs/images/reglages.png) |
+| **Pause et reprise du vol** | **Victoire et rejeu** |
+| ![Le menu de pause permet de reprendre le vol ou de retourner au sanctuaire](docs/images/pause.png) | ![Le voyage accompli : les douze anneaux validés et la possibilité de rejouer](docs/images/victoire.png) |
+
+Ces captures proviennent du jeu exécuté dans Chromium pendant les vérifications automatisées. Elles sont conservées dans [`docs/images/`](docs/images/).
 
 ## Jouer
 
-Version hébergée : https://helio-jardin-des-orbites.martzloffeyden.chatgpt.site
+[Ouvrir la version jouable en ligne](https://helio-jardin-des-orbites.martzloffeyden.chatgpt.site/?v=1.1.0).
 
 Pour lancer le projet sur votre machine : **Node.js 18 ou ultérieur**, puis, depuis ce dossier :
 
 ```sh
+git clone https://github.com/martzloffeyden-hub/SOL-ULTRA-3D-GAME.git
+cd SOL-ULTRA-3D-GAME
 npm start
 ```
 
@@ -84,7 +104,13 @@ python tests/journey.py
 
 Le script utilise Chromium installé dans `/usr/bin/chromium` (adapter ce chemin si nécessaire). Les tests navigateur utilisent `?qa=1`, uniquement sur `localhost` ou `127.0.0.1`. Ce mode permet de placer le joueur à l’approche des obstacles et d’avancer la simulation normale. Il ne permet pas de modifier les compteurs de progression. Le test accéléré ne constitue pas une partie manuelle intégrale.
 
-Les rapports réels et limites de mesure figurent dans `VALIDATION.md` et `test-output/browser-report.json`.
+Les rapports réels et les limites de mesure sont détaillés dans [VALIDATION.md](VALIDATION.md) :
+
+- [Géométrie et monde](tests/) : 12 tests réussis.
+- [Jeu dans le navigateur](test-output/browser-report.json) : 34 vérifications réussies.
+- [Caméra et souris](test-output/camera-report.json) : 17 vérifications réussies.
+- [Menus 3D](test-output/menus-report.json) : 22 vérifications réussies.
+- [Parcours continu jusqu’à la victoire et au rejeu](test-output/journey-report.json) : 21 contrôles réussis.
 
 ## Crédits
 
